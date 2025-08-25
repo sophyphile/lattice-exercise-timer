@@ -18,6 +18,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: true,
+            headerShadowVisible: false,
             headerTitle: () => (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <LatticeLogo
