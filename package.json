@@ -23,7 +23,9 @@
     "react-native-svg": "^15.11.2",
     "expo-linear-gradient": "~14.1.5",
     "expo-font": "~13.3.2",
-    "expo-constants": "~17.1.7"
+    "expo-constants": "~17.1.7",
+    "react-dom": "19.0.0",
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
