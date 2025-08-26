@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useEffect, useRef } from "react";
-import { TimerStep } from "../utils/generate-timer-steps";
+import { TimerStep } from "../types/timer";
 
 const MIN_BLOCK_WIDTH = 42;
 
@@ -38,17 +38,11 @@ export default function TimerTimeline({
   const progress =
     currentStep.duration > 0 ? 1 - secondsLeft / currentStep.duration : 1;
 
-  const totalSteps = steps.length;
-
   const MAX_VISIBLE_BLOCKS = Math.floor(screenWidth / MIN_BLOCK_WIDTH);
-  //   const blockWidth =
-  //     totalSteps <= MAX_VISIBLE_BLOCKS
-  //       ? Math.floor(screenWidth - 64) / totalSteps
-  //       : MIN_BLOCK_WIDTH;
 
   const canFitWithoutScroll = steps.length <= MAX_VISIBLE_BLOCKS;
   const totalTimelineWidth = canFitWithoutScroll
-    ? screenWidth - 64
+    ? screenWidth - styles.wrapper.paddingHorizontal * 2
     : steps.length * MIN_BLOCK_WIDTH;
 
   const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
@@ -58,19 +52,6 @@ export default function TimerTimeline({
       (step.duration / totalDuration) * totalTimelineWidth;
     return Math.max(proportionalWidth, MIN_BLOCK_WIDTH);
   });
-
-  // const setGroups: Record<number, { indices: number[]; startIndex: number }> =
-  //   {};
-
-  // steps.forEach((step, i) => {
-  //   if (typeof step.currentSet === "number") {
-  //     const set = step.currentSet;
-  //     if (!setGroups[set]) {
-  //       setGroups[set] = { indices: [], startIndex: i };
-  //     }
-  //     setGroups[set].indices.push(i);
-  //   }
-  // });
 
   // Scroll to current step when it updates
   useEffect(() => {
@@ -111,21 +92,13 @@ export default function TimerTimeline({
           const isSetRest = item.type === "inter-set-rest";
           const belongsToSet = typeof item.currentSet === "number";
 
-          // const shouldRenderLabelHere = Object.entries(setGroups).some(
-          //   ([set, group]) => group.startIndex === index
-          // );
-
-          const shouldRenderLabelHere = item.type === "work" && item.firstRepOfSet;
+          const shouldRenderLabelHere =
+            item.type === "work" && item.firstRepOfSet;
 
           const setLabel = shouldRenderLabelHere ? (
             <View
               style={{
-                // position: "absolute",
-                // left: 0,
                 width: blockWidths[index],
-                // width:
-                //   blockWidths[index] *
-                //   setGroups[item.currentSet!].indices.length,
                 alignItems: "center",
                 justifyContent: "center",
                 height: 24,
@@ -156,7 +129,10 @@ export default function TimerTimeline({
                     index === steps.length - 1 && {
                       borderTopRightRadius: 8,
                     },
-                    isCurrent && { borderTopRightRadius: 8, borderTopLeftRadius: 8 },
+                    isCurrent && {
+                      borderTopRightRadius: 8,
+                      borderTopLeftRadius: 8,
+                    },
                   ]}
                 >
                   {isCurrent && (
@@ -214,12 +190,7 @@ export default function TimerTimeline({
                     ]}
                   />
                 )}
-                <Text
-                  style={[
-                    { opacity: 0.8 },
-                    { textAlign: "center" },
-                  ]}
-                >
+                <Text style={[{ opacity: 0.8 }, { textAlign: "center" }]}>
                   {setLabel}
                 </Text>
               </View>
@@ -233,13 +204,10 @@ export default function TimerTimeline({
 
 const styles = StyleSheet.create({
   wrapper: {
+    alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 8,
   },
-  //   container: {
-  //     paddingVertical: 12,
-  //     paddingHorizontal: 32,
-  //   },
   timelineContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -249,10 +217,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
   },
-  //   blockWrapper: {
-  //     marginHorizontal: 0,
-  //     alignItems: "center",
-  //   },
   block: {
     justifyContent: "center",
     overflow: "hidden",
@@ -261,7 +225,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     top: 0,
-    // backgroundColor: "#ffffff80",
   },
   setBar: {
     height: 28,

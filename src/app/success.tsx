@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 24,
+    fontSize: 20,
     color: "#f6f6f6",
     marginBottom: 40,
     fontWeight: "bold",
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
   },
 });

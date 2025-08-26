@@ -1,32 +1,41 @@
 import { useEffect, useState, useRef } from "react";
-import { View, Text, Pressable, StyleSheet, ColorValue } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import TimerProgress from "../components/timer-progress";
-import { generateTimerSteps, TimerStep } from "../utils/generate-timer-steps";
+import { generateTimerSteps } from "../utils/generate-timer-steps";
+import { TimerStep } from "../types/timer";
 import { Ionicons } from "@expo/vector-icons";
 import { calculateTotalTime } from "../utils/calculate-total-time";
 import TimerTimeline from "../components/timer-timeline";
+import { AppState } from "react-native";
+import * as Haptics from "expo-haptics";
+import { celebrateWithHaptics } from "../utils/celebrate-with-haptics";
+import { SessionConfig } from "../types/session";
 
 export default function TimerScreen() {
   const { sets, reps, interSetRest, interRepRest, repWorkTime } =
     useLocalSearchParams();
 
-  // Step state
   const [steps, setSteps] = useState<TimerStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [stepDuration, setStepDuration] = useState(0); // Duration of the current step
   const [secondsLeft, setSecondsLeft] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isRunning, setIsRunning] = useState(true);
 
-  const getGradientColors: (
-    stepType: TimerStep["type"]
-  ) => readonly [ColorValue, ColorValue, ...ColorValue[]] = (
-    stepType: TimerStep["type"]
-  ) => {
-    return ["#121212", "rgba(48, 126, 174, 1)"];
-  };
+  const frameRef = useRef<number | null>(null);
+  const startTimestampRef = useRef<number | null>(null);
+  const pausedAtRef = useRef<number | null>(null);
+  const isRunningRef = useRef(isRunning);
+  const stepDurationRef = useRef(stepDuration);
+  const currentStepIndexRef = useRef(currentStepIndex);
+  const stepsRef = useRef<TimerStep[]>([]);
+  const wasPausedDueToAppStateRef = useRef(false);
 
-  const parsed = {
+  useEffect(() => {
+    stepsRef.current = steps;
+  }, [steps]);
+
+  const parsed: SessionConfig = {
     sets: Number(sets),
     reps: Number(reps),
     interSetRest: Number(interSetRest),
@@ -36,6 +45,97 @@ export default function TimerScreen() {
 
   // Calculate total exercise time
   const totalTimeSeconds: number = calculateTotalTime(parsed);
+
+  // Start a step
+  const startStep = (duration: number) => {
+    setStepDuration(duration);
+    setSecondsLeft(duration);
+    stepDurationRef.current = duration;
+    startTimestampRef.current = Date.now();
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    setTimeout(() => {
+      frameRef.current = requestAnimationFrame(tick);
+    }, 50);
+  };
+
+  // Start a step for a given index
+  const startStepForIndex = (index: number) => {
+    const step = stepsRef.current[index];
+    if (!step) return;
+    currentStepIndexRef.current = index;
+    setCurrentStepIndex(index);
+    startStep(step.duration);
+  };
+
+  const tick = () => {
+    if (!isRunningRef.current || startTimestampRef.current === null) {
+      return;
+    }
+
+    if (stepDurationRef.current === 0) {
+      console.warn("Warning: Current step duration is 0, skipping tick");
+      return;
+    }
+
+    const now = Date.now();
+    const elapsed = (now - startTimestampRef.current) / 1000;
+    const newSecondsLeft = Math.max(stepDurationRef.current - elapsed, 0);
+
+    setSecondsLeft(Math.ceil(newSecondsLeft));
+
+    if (newSecondsLeft <= 0) {
+      // Trigger haptics when switching to next step
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Advance to next step
+      const nextIndex = currentStepIndexRef.current + 1;
+      if (nextIndex < stepsRef.current.length) {
+        startStepForIndex(nextIndex);
+      } else {
+        setIsRunning(false);
+        return;
+      }
+    } else {
+      frameRef.current = requestAnimationFrame(tick);
+    }
+  };
+
+  const pause = () => {
+    if (!isRunning) return;
+    setIsRunning(false);
+    pausedAtRef.current = Date.now();
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+  };
+
+  const resume = () => {
+    if (isRunning || pausedAtRef.current === null) return;
+
+    const pauseDuration = Date.now() - pausedAtRef.current;
+
+    if (startTimestampRef.current) {
+      startTimestampRef.current += pauseDuration;
+    }
+    pausedAtRef.current = null;
+    setIsRunning(true);
+
+    // Defer tick to next frame
+    setTimeout(() => {
+      frameRef.current = requestAnimationFrame(tick);
+    }, 0);
+  };
+
+  useEffect(() => {
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
+
+  useEffect(() => {
+    stepDurationRef.current = stepDuration;
+  }, [stepDuration]);
+
+  useEffect(() => {
+    currentStepIndexRef.current = currentStepIndex;
+  }, [currentStepIndex]);
 
   // Generate steps on mount
   useEffect(() => {
@@ -48,29 +148,16 @@ export default function TimerScreen() {
     );
 
     setSteps(generatedSteps);
-    setSecondsLeft(generatedSteps[0].duration);
+    setCurrentStepIndex(0);
+    startStep(generatedSteps[0].duration);
+    setIsRunning(true);
   }, []);
 
-  // Tick every second
   useEffect(() => {
-    if (steps.length === 0 || !isRunning) return;
-
-    intervalRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev > 1) return prev - 1;
-
-        if (currentStepIndex + 1 < steps.length) {
-          setCurrentStepIndex((i) => i + 1);
-          return steps[currentStepIndex + 1].duration;
-        } else {
-          clearInterval(intervalRef.current!);
-          return 0;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(intervalRef.current!);
-  }, [steps, currentStepIndex, isRunning]);
+    return () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    };
+  }, []);
 
   // Navigate to success screen when timer completes
   useEffect(() => {
@@ -80,18 +167,43 @@ export default function TimerScreen() {
       secondsLeft === 0
     ) {
       // Delayed nav to allow render to settle
-      setTimeout(
-        () =>
-          router.replace({
-            pathname: "/success",
-            params: {
-              totalTimeSeconds: totalTimeSeconds,
-            },
-          }),
-        100
-      );
+      setTimeout(() => {
+        // Haptics feedback
+        celebrateWithHaptics(20, 25);
+
+        router.replace({
+          pathname: "/success",
+          params: {
+            totalTimeSeconds,
+          },
+        });
+      }, 50);
     }
   }, [secondsLeft, currentStepIndex, steps.length]);
+
+  // Pause timer when app is moved to background or inactive
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState !== "active") {
+        pause();
+        wasPausedDueToAppStateRef.current = true;
+      }
+
+      if (nextAppState === "active" && wasPausedDueToAppStateRef.current) {
+        resume();
+        wasPausedDueToAppStateRef.current = false;
+      }
+    };
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (steps.length === 0) {
     return (
@@ -114,11 +226,10 @@ export default function TimerScreen() {
           secondsLeft={secondsLeft}
           isRunning={isRunning}
           onToggleTimer={() => {
-            if (isRunning && intervalRef.current) {
-              clearInterval(intervalRef.current);
-            }
-            setIsRunning((prev) => !prev);
+            if (isRunning) pause();
+            else resume();
           }}
+          sessionConfig={parsed}
         />
       </View>
 
@@ -131,7 +242,8 @@ export default function TimerScreen() {
             pressed && { opacity: 0.88 },
           ]}
           onPress={() => {
-            clearInterval(intervalRef.current!);
+            if (frameRef.current) cancelAnimationFrame(frameRef.current);
+            pausedAtRef.current = null;
             router.back();
           }}
         >
@@ -153,11 +265,7 @@ export default function TimerScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#121212",
-    // padding: 20,
-    // paddingBottom: 140,
     flex: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
   },
   timerArea: {
     flex: 1.2,
@@ -177,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   cancelButton: {
-    marginTop: 0,
+    marginTop: 56,
     backgroundColor: "#c82506",
     width: 56,
     height: 56,

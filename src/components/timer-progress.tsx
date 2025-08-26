@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
-import { TimerStep } from "../utils/generate-timer-steps";
 import { useEffect, useRef } from "react";
 import { formatTime } from "../utils/format-time";
+import { SessionConfig } from "../types/session";
+import { TimerStep } from "../types/timer";
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_LENGTH = 2 * Math.PI * CIRCLE_RADIUS;
@@ -22,6 +23,7 @@ type Props = {
   secondsLeft: number;
   isRunning: boolean;
   onToggleTimer: () => void;
+  sessionConfig: SessionConfig;
 };
 
 export default function TimerProgress({
@@ -31,6 +33,7 @@ export default function TimerProgress({
   secondsLeft,
   isRunning,
   onToggleTimer,
+  sessionConfig,
 }: Props) {
   const progress =
     currentStep.duration > 0 ? 1 - secondsLeft / currentStep.duration : 1;
@@ -39,7 +42,7 @@ export default function TimerProgress({
   const RUNNING_BUTTON_COLOUR = "#f5d329";
   const PAUSED_BUTTON_COLOUR = "#307eae";
 
-  const pulseAnim = useRef(new Animated.Value(1)).current
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Pulsing animation of background circle
   useEffect(() => {
@@ -75,20 +78,13 @@ export default function TimerProgress({
     <View style={styles.container}>
       <View style={styles.spacerTop} />
       <View style={styles.stepTypeWrapper}>
-        {/* <View style={styles.radialGlow} pointerEvents="none"/>  */}
         <Animated.View
           style={[
             styles.stepTypeBackground,
             {
               backgroundColor:
                 currentStep.type === "work" ? "#307eae" : "#f5d329",
-              // : currentStep.type === "inter-rep-rest"
-              // ? "#f5d329"
-              // : "#c82506",
               shadowColor: currentStep.type === "work" ? "#307eae" : "#f5d329",
-              // currentStep.type === "inter-rep-rest"
-              // ? "#f5d329"
-              // : "#c82506",
               opacity: currentStep.type === "work" ? 0.4 : 0.5,
               transform: [{ scale: pulseAnim }],
             },
@@ -99,11 +95,10 @@ export default function TimerProgress({
         </Text>
       </View>
       <Text style={styles.stepLabel}>{currentStep.label}</Text>
+      <Text style={styles.sessionConfig}>
+        {`Rep: ${sessionConfig.repWorkTime}s   •   Rep Rest: ${sessionConfig.interRepRest}s   •   Set Rest: ${sessionConfig.interSetRest}s`}
+      </Text>
       <Text style={styles.timerText}>{formatTime(secondsLeft)}</Text>
-
-      {/* <View style={styles.progressBarBackground}>
-        <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
-      </View> */}
       <View style={styles.svgContainer}>
         <Svg width="100" height="100">
           {/* Background circle */}
@@ -200,6 +195,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  sessionConfig: {
+    fontSize: 18,
+    color: "#f6f6f6",
+    textAlign: "center",
+    marginTop: 4,
+    marginBottom: 20,
+    opacity: 0.82,
+  },
   timerText: {
     fontSize: 28,
     fontWeight: "bold",
@@ -207,22 +210,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  // progressBarBackground: {
-  //   width: "90%",
-  //   height: 10,
-  //   backgroundColor: "#eee",
-  //   borderRadius: 5,
-  //   overflow: "hidden",
-  //   marginBottom: 10,
-  // },
-  // progressBarFill: {
-  //   height: "100%",
-  //   backgroundColor: "#4CAF50", // green
-  // },
   stepCount: {
-    fontSize: 16,
-    color: "#aaa",
+    fontSize: 18,
+    color: "#f6f6f6",
     textAlign: "center",
+    opacity: 0.82,
   },
   stepTypeWrapper: {
     position: "relative",
@@ -230,17 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // radialGlow: {
-  //   position: "absolute",
-  //   width: 300,
-  //   height: 300,
-  //   borderRadius: 9999,
-  //   backgroundColor: "rgba(48, 126, 174, 0.15)",
-  //   shadowColor: "#307eae",
-  //   shadowOpacity: 1,
-  //   shadowRadius: 100,
-  //   elevation: 10,
-  // },
   stepTypeBackground: {
     position: "absolute",
     width: 160,

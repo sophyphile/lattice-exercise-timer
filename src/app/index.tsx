@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   View,
   Text,
@@ -69,10 +68,22 @@ export default function ConfigScreen() {
   const INPUT_FIELDS = [
     { label: "Set count", name: "sets", placeholder: PLACEHOLDERS.sets },
     { label: "Rep count", name: "reps", placeholder: PLACEHOLDERS.reps },
-    { label: "Inter-set Rest (secs)", name: "interSetRest", placeholder: PLACEHOLDERS.interSetRest },
-    { label: "Inter-rep Rest (secs)", name: "interRepRest", placeholder: PLACEHOLDERS.interRepRest },
-    { label: "Rep Work Time (secs)", name: "repWorkTime", placeholder: PLACEHOLDERS.repWorkTime },
-  ]
+    {
+      label: "Inter-set Rest (secs)",
+      name: "interSetRest",
+      placeholder: PLACEHOLDERS.interSetRest,
+    },
+    {
+      label: "Inter-rep Rest (secs)",
+      name: "interRepRest",
+      placeholder: PLACEHOLDERS.interRepRest,
+    },
+    {
+      label: "Rep Work Time (secs)",
+      name: "repWorkTime",
+      placeholder: PLACEHOLDERS.repWorkTime,
+    },
+  ];
 
   const {
     control,
@@ -91,25 +102,6 @@ export default function ConfigScreen() {
     },
   });
 
-  // const [sets, setSets] = useState("");
-  // const [reps, setReps] = useState("");
-  // const [interSetRest, setInterSetRest] = useState("");
-  // const [interRepRest, setInterRepRest] = useState("");
-  // const [repWorkTime, setRepWorkTime] = useState("");
-
-  // const handleStart = () => {
-  //   router.push({
-  //     pathname: "/timer",
-  //     params: {
-  //       sets: sets.toString(),
-  //       reps: reps.toString(),
-  //       interSetRest: interSetRest.toString(),
-  //       interRepRest: interRepRest.toString(),
-  //       repWorkTime: repWorkTime.toString(),
-  //     },
-  //   });
-  // };
-
   const onSubmit = (data: zod.infer<typeof configSchema>) => {
     router.push({
       pathname: "/timer",
@@ -122,14 +114,6 @@ export default function ConfigScreen() {
       },
     });
   };
-
-  // const handleReset = () => {
-  //   setSets("");
-  //   setReps("");
-  //   setInterSetRest("");
-  //   setInterRepRest("");
-  //   setRepWorkTime("");
-  // };
 
   return (
     <LinearGradient
@@ -150,12 +134,15 @@ export default function ConfigScreen() {
           showsVerticalScrollIndicator={true}
         >
           <View style={styles.container}>
-            {INPUT_FIELDS.map(({ label, name, placeholder}) => (
+            {INPUT_FIELDS.map(({ label, name, placeholder }) => (
               <Controller
                 key={name}
                 control={control}
                 name={name as keyof zod.infer<typeof configSchema>}
-                render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
+                render={({
+                  field: { value, onChange, onBlur },
+                  fieldState: { error },
+                }) => (
                   <>
                     <Text style={styles.label}>{label}</Text>
                     <TextInput
@@ -172,55 +159,6 @@ export default function ConfigScreen() {
                 )}
               />
             ))}
-            {/* <Text style={styles.label}>Set count</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={sets}
-              onChangeText={setSets}
-              placeholder={PLACEHOLDERS.sets}
-              placeholderTextColor="#888"
-            />
-
-            <Text style={styles.label}>Rep count</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={reps}
-              onChangeText={setReps}
-              placeholder={PLACEHOLDERS.reps}
-              placeholderTextColor="#888"
-            />
-
-            <Text style={styles.label}>Inter-set Rest (secs)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={interSetRest}
-              onChangeText={setInterSetRest}
-              placeholder={PLACEHOLDERS.interSetRest}
-              placeholderTextColor="#888"
-            />
-
-            <Text style={styles.label}>Inter-rep Rest (secs)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={interRepRest}
-              onChangeText={setInterRepRest}
-              placeholder={PLACEHOLDERS.interRepRest}
-              placeholderTextColor="#888"
-            />
-
-            <Text style={styles.label}>Rep Work Time (secs)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={repWorkTime}
-              onChangeText={setRepWorkTime}
-              placeholder={PLACEHOLDERS.repWorkTime}
-              placeholderTextColor="#888"
-            /> */}
 
             <Pressable
               style={({ pressed }) => [
@@ -252,7 +190,6 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
     padding: 40,
-    // backgroundColor: "#121212",
     flex: 1,
   },
   scrollContent: {
@@ -260,8 +197,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   label: {
-    fontSize: 16,
-    marginBottom: 6,
+    fontSize: 18,
+    marginBottom: 10,
     color: "#f6f6f6",
   },
   input: {
@@ -287,7 +224,7 @@ const styles = StyleSheet.create({
   startButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
   resetButton: {
     backgroundColor: "#f6f6f6",
@@ -300,6 +237,6 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: "#307eae",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
 });
