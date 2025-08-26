@@ -14,48 +14,85 @@ import * as zod from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 
-const configSchema = zod.object({
-  sets: zod
-    .string()
-    .min(1, { message: "Set count is required" })
-    .regex(/^\d+$/, { message: "Set count must be a number" })
-    .transform(Number)
-    .refine((n: number) => n > 0 && n <= 99, {
-      message: "Set count must be between 1 and 99",
-    }),
-  reps: zod
-    .string()
-    .min(1, { message: "Rep count is required" })
-    .regex(/^\d+$/, { message: "Rep count must be a number" })
-    .transform(Number)
-    .refine((n: number) => n > 0 && n <= 99, {
-      message: "Rep count must be between 1 and 99",
-    }),
-  interSetRest: zod
-    .string()
-    .min(1, { message: "Inter-set rest is required" })
-    .regex(/^\d+$/, { message: "Inter-set rest must be a number" })
-    .transform(Number)
-    .refine((n: number) => n >= 0 && n <= 1800, {
-      message: "Inter-set rest must be between 0 and 1800",
-    }),
-  interRepRest: zod
-    .string()
-    .min(1, { message: "Inter-rep rest is required" })
-    .regex(/^\d+$/, { message: "Inter-rep rest must be a number" })
-    .transform(Number)
-    .refine((n: number) => n >= 0 && n <= 60, {
-      message: "Inter-rep rest must be between 0 and 60",
-    }),
-  repWorkTime: zod
-    .string()
-    .min(1, { message: "Rep work time is required" })
-    .regex(/^\d+$/, { message: "Rep work time must be a number" })
-    .transform(Number)
-    .refine((n: number) => n > 0 && n <= 600, {
-      message: "Rep work time must be between 1 and 600",
-    }),
-});
+const configSchema = zod
+  .object({
+    sets: zod
+      .string()
+      .min(1, { message: "Set count is required" })
+      .regex(/^\d+$/, {
+        message: "Set count must be a number between 1 and 99",
+      })
+      .transform(Number)
+      .refine((n) => n > 0 && n <= 99, {
+        message: "Set count must be a number between 1 and 99",
+      }),
+
+    reps: zod
+      .string()
+      .min(1, { message: "Rep count is required" })
+      .regex(/^\d+$/, {
+        message: "Rep count must be a number between 1 and 99",
+      })
+      .transform(Number)
+      .refine((n) => n > 0 && n <= 99, {
+        message: "Rep count must be a number between 1 and 99",
+      }),
+
+    interSetRest: zod
+      .string()
+      .optional()
+      .transform((val) => (val === "" ? null : Number(val)))
+      .refine((n) => n === null || (!isNaN(n) && n >= 0 && n <= 1800), {
+        message: "Inter-set Rest must be a number between 0 and 1800",
+      }),
+
+    interRepRest: zod
+      .string()
+      .optional()
+      .transform((val) => (val === "" ? null : Number(val)))
+      .refine((n) => n === null || (!isNaN(n) && n >= 0 && n <= 60), {
+        message: "Inter-rep Rest must be a number between 0 and 60",
+      }),
+
+    repWorkTime: zod
+      .string()
+      .min(1, { message: "Rep Work Time is required" })
+      .regex(/^\d+$/, {
+        message: "Rep Work Time must be a number between 1 and 600",
+      })
+      .transform(Number)
+      .refine((n) => n > 0 && n <= 600, {
+        message: "Rep Work Time must be a number between 1 and 600",
+      }),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.sets > 1 &&
+      (data.interSetRest === undefined ||
+        data.interSetRest === null ||
+        data.interSetRest === 0)
+    ) {
+      ctx.addIssue({
+        path: ["interSetRest"],
+        message: "Inter-set Rest is required when Set count > 1",
+        code: zod.ZodIssueCode.custom,
+        fatal: true,
+      });
+    }
+
+    if (
+      data.reps > 1 &&
+      (data.interRepRest === undefined ||
+        data.interRepRest === null ||
+        data.interRepRest === 0)
+    ) {
+      ctx.addIssue({
+        path: ["interRepRest"],
+        message: "Inter-rep Rest is required when Rep Count > 1",
+        code: zod.ZodIssueCode.custom,
+      });
+    }
+  });
 
 export default function ConfigScreen() {
   const PLACEHOLDERS = {
