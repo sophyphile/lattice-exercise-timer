@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { View, Text, Pressable, StyleSheet, ColorValue } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import TimerProgress from "../components/timer-progress";
-import { generateTimerSteps, TimerStep } from "../utils/timer-logic";
+import { generateTimerSteps, TimerStep } from "../utils/generate-timer-steps";
 import { Ionicons } from "@expo/vector-icons";
+import { calculateTotalTime } from "../utils/calculate-total-time";
+import TimerTimeline from "../components/timer-timeline";
 
 export default function TimerScreen() {
   const { sets, reps, interSetRest, interRepRest, repWorkTime } =
@@ -31,6 +33,9 @@ export default function TimerScreen() {
     interRepRest: Number(interRepRest),
     repWorkTime: Number(repWorkTime),
   };
+
+  // Calculate total exercise time
+  const totalTimeSeconds: number = calculateTotalTime(parsed);
 
   // Generate steps on mount
   useEffect(() => {
@@ -75,7 +80,16 @@ export default function TimerScreen() {
       secondsLeft === 0
     ) {
       // Delayed nav to allow render to settle
-      setTimeout(() => router.replace("/success"), 100);
+      setTimeout(
+        () =>
+          router.replace({
+            pathname: "/success",
+            params: {
+              totalTimeSeconds: totalTimeSeconds,
+            },
+          }),
+        100
+      );
     }
   }, [secondsLeft, currentStepIndex, steps.length]);
 
@@ -114,7 +128,7 @@ export default function TimerScreen() {
         <Pressable
           style={({ pressed }) => [
             styles.cancelButton,
-            pressed && { opacity: 0.9 },
+            pressed && { opacity: 0.88 },
           ]}
           onPress={() => {
             clearInterval(intervalRef.current!);
@@ -124,6 +138,16 @@ export default function TimerScreen() {
           <Ionicons name="close" size={24} color="#ffffff" />
         </Pressable>
       </View>
+
+      {/* Timeline */}
+      <TimerTimeline
+        steps={steps}
+        currentStepIndex={currentStepIndex}
+        secondsLeft={secondsLeft}
+        timerIsRunning={isRunning}
+        repCountPerSet={parsed.reps}
+        firstRepOfSet={currentStep.firstRepOfSet}
+      />
     </View>
   );
 }
@@ -148,6 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingBottom: 40,
+    marginTop: 20,
   },
   loading: {
     color: "#f6f6f6",

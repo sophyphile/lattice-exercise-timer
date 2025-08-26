@@ -1,7 +1,9 @@
 export type TimerStep = {
-  label: string; // e.g. "Set 1 - Rep 1", "Inter-set Rest", "Inter-rep Rest"
+  label: string; // e.g. "Set 1 - Rep 1 Work", "Set 1 - Rep 1 Rest", "Rest after Set 1"
   duration: number; // in seconds
   type: "work" | "inter-rep-rest" | "inter-set-rest"
+  currentSet: number | null;
+  firstRepOfSet?: boolean;
 };
 
 export function generateTimerSteps(
@@ -19,6 +21,8 @@ export function generateTimerSteps(
         label: `Set ${set} - Rep ${rep} Work`,
         duration: repWorkTime,
         type: "work",
+        currentSet: set,
+        firstRepOfSet: rep === 1,
       });
 
       // Add inter-rep rest *unless it's the last rep*
@@ -27,6 +31,7 @@ export function generateTimerSteps(
           label: `Set ${set} - Rep ${rep} Rest`,
           duration: interRepRest,
           type: "inter-rep-rest",
+          currentSet: set,
         });
       }
     }
@@ -37,6 +42,7 @@ export function generateTimerSteps(
         label: `Rest after Set ${set}`,
         duration: interSetRest,
         type: "inter-set-rest",
+        currentSet: null,
       });
     }
   }

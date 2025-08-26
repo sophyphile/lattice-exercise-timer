@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
-import { TimerStep } from "../utils/timer-logic";
+import { TimerStep } from "../utils/generate-timer-steps";
 import { useEffect, useRef } from "react";
+import { formatTime } from "../utils/format-time";
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_LENGTH = 2 * Math.PI * CIRCLE_RADIUS;
@@ -98,7 +99,7 @@ export default function TimerProgress({
         </Text>
       </View>
       <Text style={styles.stepLabel}>{currentStep.label}</Text>
-      <Text style={styles.timerText}>{secondsLeft}s remaining</Text>
+      <Text style={styles.timerText}>{formatTime(secondsLeft)}</Text>
 
       {/* <View style={styles.progressBarBackground}>
         <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />

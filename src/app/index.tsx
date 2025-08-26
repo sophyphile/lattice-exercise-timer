@@ -31,14 +31,22 @@ export default function ConfigScreen() {
     router.push({
       pathname: "/timer",
       params: {
-        sets: sets || DEFAULTS.sets,
-        reps: reps || DEFAULTS.reps,
-        interSetRest: interSetRest || DEFAULTS.interSetRest,
-        interRepRest: interRepRest || DEFAULTS.interRepRest,
-        repWorkTime: repWorkTime || DEFAULTS.repWorkTime,
+        sets: sets,
+        reps: reps,
+        interSetRest: interSetRest,
+        interRepRest: interRepRest,
+        repWorkTime: repWorkTime,
       },
     });
   };
+
+  const handleReset = () => {
+    setSets("");
+    setReps("");
+    setInterSetRest("");
+    setInterRepRest("");
+    setRepWorkTime("");
+  }
 
   return (
     <LinearGradient
@@ -109,8 +117,12 @@ export default function ConfigScreen() {
               placeholderTextColor="#888"
             />
 
-            <Pressable style={styles.startButton} onPress={handleStart}>
+            <Pressable style={({ pressed }) => [styles.startButton, pressed && { opacity: 0.88 }]} onPress={handleStart}>
               <Text style={styles.startButtonText}>Start</Text>
+            </Pressable>
+
+            <Pressable style={({ pressed }) => [styles.resetButton, pressed && { opacity: 0.8 }]} onPress={handleReset}>
+              <Text style={styles.resetButtonText}>Reset</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -155,4 +167,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  resetButton: {
+    backgroundColor: "#f6f6f6",
+    paddingVertical: 14,
+    borderRadius: 8,
+    opacity: 0.9,
+    marginTop: 16,
+    alignItems: "center",
+  },
+  resetButtonText: {
+    color: "#307eae",
+    fontWeight: "bold",
+    fontSize: 16,
+  }
 });

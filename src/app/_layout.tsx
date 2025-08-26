@@ -44,10 +44,19 @@ export default function RootLayout() {
             name="index"
             options={{ title: "Config", headerLeft: () => null }}
           />
-          <Stack.Screen name="timer" options={{ title: "Timer" }} />
+          <Stack.Screen
+            name="timer"
+            options={{
+              title: "Timer",
+              headerBackVisible: false,
+            }}
+          />
           <Stack.Screen
             name="success"
-            options={{ title: "Exercise Complete" }}
+            options={{
+              title: "Exercise Complete",
+              headerBackVisible: false,
+            }}
           />
         </Stack>
       </SafeAreaView>
