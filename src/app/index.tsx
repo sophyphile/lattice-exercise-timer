@@ -145,8 +145,8 @@ export default function ConfigScreen() {
       params: {
         sets: data.sets.toString(),
         reps: data.reps.toString(),
-        interSetRest: data.interSetRest.toString(),
-        interRepRest: data.interRepRest.toString(),
+        interSetRest: data.interSetRest?.toString() ?? "",
+        interRepRest: data.interRepRest?.toString() ?? "",
         repWorkTime: data.repWorkTime.toString(),
       },
     });
