@@ -7,21 +7,16 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useEffect, useRef } from "react";
-import { TimerStep } from "../types/timer";
+
+import { TimerStep, TimerStepType } from "@/types/timer-step.types";
+import { TimerTimelineProps } from "@/types/timer-timeline.types";
 
 const MIN_BLOCK_WIDTH = 42;
 
 const TYPE_COLORS: Record<TimerStep["type"], string> = {
-  work: "#307eae",
-  "inter-rep-rest": "#f5d329",
-  "inter-set-rest": "#f5d329",
-};
-
-export type TimerTimelineProps = {
-  steps: TimerStep[];
-  currentStepIndex: number;
-  secondsLeft: number;
-  timerIsRunning: boolean;
+  [TimerStepType.Work]: "#307eae",
+  [TimerStepType.InterRepRest]: "#f5d329",
+  [TimerStepType.InterSetRest]: "#f5d329",
 };
 
 export default function TimerTimeline({
@@ -89,11 +84,11 @@ export default function TimerTimeline({
         showsHorizontalScrollIndicator={false}
         renderItem={({ item, index }) => {
           const isCurrent = index === currentStepIndex;
-          const isSetRest = item.type === "inter-set-rest";
+          const isSetRest = item.type === TimerStepType.InterSetRest;
           const belongsToSet = typeof item.currentSet === "number";
 
           const shouldRenderLabelHere =
-            item.type === "work" && item.firstRepOfSet;
+            item.type === TimerStepType.Work && item.firstRepOfSet;
 
           const setLabel = shouldRenderLabelHere ? (
             <View
@@ -151,7 +146,7 @@ export default function TimerTimeline({
                     />
                   )}
                   <Text style={styles.stepLabel}>
-                    {item.type === "work" ? "W" : "R"}
+                    {item.type === TimerStepType.Work ? "W" : "R"}
                   </Text>
                 </View>
               </View>
@@ -164,7 +159,7 @@ export default function TimerTimeline({
                     width: blockWidths[index],
                     backgroundColor: belongsToSet
                       ? "#333"
-                      : TYPE_COLORS["inter-set-rest"],
+                      : TYPE_COLORS[TimerStepType.InterSetRest],
                     opacity: belongsToSet ? 0.9 : isCurrent ? 0.9 : 0.72,
                   },
                   index === 0 && {
@@ -211,7 +206,7 @@ const styles = StyleSheet.create({
   timelineContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 48,
+    marginBottom: 56,
   },
   column: {
     flexDirection: "column",

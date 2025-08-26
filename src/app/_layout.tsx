@@ -1,8 +1,9 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import LatticeLogo from "../../assets/lattice_logo_h_white.svg";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import LatticeLogo from "../../assets/lattice_logo_h_white.svg";
 
 export default function RootLayout() {
   return (
@@ -28,9 +29,6 @@ export default function RootLayout() {
                     marginRight: 8,
                   }}
                 />
-                {/* <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-                LATTICE TRAINING
-              </Text> */}
               </View>
             ),
             headerStyle: {

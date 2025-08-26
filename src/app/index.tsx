@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   error: {
     color: "#f00",
-    fontSize: 12,
+    fontSize: 14,
     marginBottom: 16,
   },
   startButton: {

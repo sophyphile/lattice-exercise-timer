@@ -3,7 +3,6 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { useRef } from "react";
 
 export default function SuccessScreen() {
   const { totalTimeSeconds } = useLocalSearchParams();

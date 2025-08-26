@@ -1,16 +1,18 @@
 import { useEffect, useState, useRef } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import TimerProgress from "../components/timer-progress";
-import { generateTimerSteps } from "../utils/generate-timer-steps";
-import { TimerStep } from "../types/timer";
 import { Ionicons } from "@expo/vector-icons";
-import { calculateTotalTime } from "../utils/calculate-total-time";
-import TimerTimeline from "../components/timer-timeline";
 import { AppState } from "react-native";
 import * as Haptics from "expo-haptics";
-import { celebrateWithHaptics } from "../utils/celebrate-with-haptics";
-import { SessionConfig } from "../types/session";
+
+import TimerTimeline from "@/components/timer-timeline";
+import TimerProgress from "@/components/timer-progress";
+import { generateTimerSteps } from "@/utils/generate-timer-steps";
+import { celebrateWithHaptics } from "@/utils/celebrate-with-haptics";
+import { calculateTotalTime } from "@/utils/calculate-total-time";
+
+import { SessionConfig } from "@/types/session-config.types";
+import { TimerStep } from "@/types/timer-step.types";
 
 export default function TimerScreen() {
   const { sets, reps, interSetRest, interRepRest, repWorkTime } =
@@ -18,7 +20,7 @@ export default function TimerScreen() {
 
   const [steps, setSteps] = useState<TimerStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [stepDuration, setStepDuration] = useState(0); // Duration of the current step
+  const [stepDuration, setStepDuration] = useState(0); 
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
 
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   cancelButton: {
-    marginTop: 56,
+    marginTop: 60,
     backgroundColor: "#c82506",
     width: 56,
     height: 56,

@@ -3,11 +3,7 @@ module.exports = function (api) {
     return {
       presets: ['babel-preset-expo'],
       plugins: [  
-        // If using "@/..." imports, enable this alias:
-        ['module-resolver', { alias: { '@': './' } }],
-  
-        // If using Reanimated, keep this:
-        // 'react-native-reanimated/plugin',
+        ['module-resolver', { alias: { '@': './src' } }],
       ],
     };
   };

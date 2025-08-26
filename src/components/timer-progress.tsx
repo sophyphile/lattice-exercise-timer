@@ -9,22 +9,14 @@ import {
 import Svg, { Circle } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
-import { formatTime } from "../utils/format-time";
-import { SessionConfig } from "../types/session";
-import { TimerStep } from "../types/timer";
+
+import { formatTime } from "@/utils/format-time";
+
+import { TimerProgressProps } from "@/types/timer-progress.types";
+import { TimerStepType } from "@/types/timer-step.types";
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_LENGTH = 2 * Math.PI * CIRCLE_RADIUS;
-
-type Props = {
-  currentStep: TimerStep;
-  currentStepIndex: number;
-  totalSteps: number;
-  secondsLeft: number;
-  isRunning: boolean;
-  onToggleTimer: () => void;
-  sessionConfig: SessionConfig;
-};
 
 export default function TimerProgress({
   currentStep,
@@ -34,7 +26,7 @@ export default function TimerProgress({
   isRunning,
   onToggleTimer,
   sessionConfig,
-}: Props) {
+}: TimerProgressProps) {
   const progress =
     currentStep.duration > 0 ? 1 - secondsLeft / currentStep.duration : 1;
 
@@ -83,20 +75,21 @@ export default function TimerProgress({
             styles.stepTypeBackground,
             {
               backgroundColor:
-                currentStep.type === "work" ? "#307eae" : "#f5d329",
-              shadowColor: currentStep.type === "work" ? "#307eae" : "#f5d329",
-              opacity: currentStep.type === "work" ? 0.4 : 0.5,
+                currentStep.type === TimerStepType.Work ? "#307eae" : "#f5d329",
+              shadowColor:
+                currentStep.type === TimerStepType.Work ? "#307eae" : "#f5d329",
+              opacity: currentStep.type === TimerStepType.Work ? 0.4 : 0.5,
               transform: [{ scale: pulseAnim }],
             },
           ]}
         />
         <Text style={styles.stepType}>
-          {currentStep.type === "work" ? "WORK" : "REST"}
+          {currentStep.type === TimerStepType.Work ? "WORK" : "REST"}
         </Text>
       </View>
       <Text style={styles.stepLabel}>{currentStep.label}</Text>
       <Text style={styles.sessionConfig}>
-        {`Rep: ${sessionConfig.repWorkTime}s   •   Rep Rest: ${sessionConfig.interRepRest}s   •   Set Rest: ${sessionConfig.interSetRest}s`}
+        {`Rep: ${sessionConfig.repWorkTime}s  •  Rep Rest: ${sessionConfig.interRepRest}s  •  Set Rest: ${sessionConfig.interSetRest}s`}
       </Text>
       <Text style={styles.timerText}>{formatTime(secondsLeft)}</Text>
       <View style={styles.svgContainer}>
@@ -175,7 +168,7 @@ const styles = StyleSheet.create({
     height: 100,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 12,
   },
   playPauseButton: {
     position: "absolute",
@@ -194,6 +187,7 @@ const styles = StyleSheet.create({
     color: "#f6f6f6",
     marginBottom: 10,
     textAlign: "center",
+    opacity: 0.82,
   },
   sessionConfig: {
     fontSize: 18,
@@ -204,11 +198,15 @@ const styles = StyleSheet.create({
     opacity: 0.82,
   },
   timerText: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: "bold",
     color: "#f6f6f6",
     marginBottom: 20,
     textAlign: "center",
+    textShadowColor: "#fff8d2aa",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 2,
+    letterSpacing: 2,
   },
   stepCount: {
     fontSize: 18,
@@ -240,5 +238,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     letterSpacing: 1,
+    textShadowColor: "#fff8d2aa",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
   },
 });

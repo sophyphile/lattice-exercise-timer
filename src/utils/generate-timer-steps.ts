@@ -1,4 +1,4 @@
-import { TimerStep } from "../types/timer";
+import { TimerStep, TimerStepType } from "@/types/timer-step.types";
 
 export function generateTimerSteps(
   sets: number,
@@ -14,7 +14,7 @@ export function generateTimerSteps(
       steps.push({
         label: `Set ${set} - Rep ${rep} Work`,
         duration: repWorkTime,
-        type: "work",
+        type: TimerStepType.Work,
         currentSet: set,
         firstRepOfSet: rep === 1,
       });
@@ -24,7 +24,7 @@ export function generateTimerSteps(
         steps.push({
           label: `Set ${set} - Rep ${rep} Rest`,
           duration: interRepRest,
-          type: "inter-rep-rest",
+          type: TimerStepType.InterRepRest,
           currentSet: set,
         });
       }
@@ -35,7 +35,7 @@ export function generateTimerSteps(
       steps.push({
         label: `Rest after Set ${set}`,
         duration: interSetRest,
-        type: "inter-set-rest",
+        type: TimerStepType.InterSetRest,
         currentSet: null,
       });
     }
