@@ -145,8 +145,6 @@ export default function TimerScreen() {
         currentStepIndex={currentStepIndex}
         secondsLeft={secondsLeft}
         timerIsRunning={isRunning}
-        repCountPerSet={parsed.reps}
-        firstRepOfSet={currentStep.firstRepOfSet}
       />
     </View>
   );
